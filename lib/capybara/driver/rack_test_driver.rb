@@ -44,10 +44,13 @@ class Capybara::Driver::RackTest < Capybara::Driver::Base
       end
     end
 
-    def select(option)
+
       if node['multiple'] != 'multiple'
         node.xpath(".//option[@selected]").each { |node| node.remove_attribute("selected") }
       end
+
+
+#      node.xpath(".//option[@selected]").each { |node| node.remove_attribute("selected") }
 
       if option_node = node.xpath(".//option[text()='#{option}']").first ||
                        node.xpath(".//option[contains(.,'#{option}')]").first
@@ -200,7 +203,9 @@ class Capybara::Driver::RackTest < Capybara::Driver::Base
   end
 
   def submit(method, path, attributes)
+
     path = current_path if not path or path.empty?
+
     send(method, path, attributes, env)
     follow_redirects!
   end
@@ -232,6 +237,7 @@ private
 
   def build_rack_mock_session # :nodoc:
     Rack::MockSession.new(app, Capybara.default_host || "www.example.com")
+
   end
 
   def current_path
@@ -258,9 +264,11 @@ private
     env
   end
 
-  def reset_cache
-    @body = nil
-    @html = nil
+
+  def cache_body
+    @body = response.body
+    @html = Nokogiri::HTML(body)
+
   end
 
 end

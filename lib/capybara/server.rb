@@ -27,11 +27,15 @@ class Capybara::Server
     "localhost" 
   end
 
+  def url_host
+    Capybara.remote_host || host
+  end
+
   def url(path)
     if path =~ /^http/
       path
     else
-      (Capybara.app_host || "http://#{host}:#{port}") + path.to_s
+      (Capybara.app_host || "http://#{url_host}:#{port}") + path.to_s
     end
   end
 
@@ -60,10 +64,12 @@ class Capybara::Server
     Capybara.log "application has already booted" and return self if responsive?
     Capybara.log "booting Rack applicartion on port #{port}"
 
+
     Thread.new do
       handler.run(Identify.new(@app), :Port => port, :AccessLog => [])
     end
     Capybara.log "checking if application has booted"
+
 
     Capybara::WaitUntil.timeout(10) do
       if responsive?
@@ -74,6 +80,11 @@ class Capybara::Server
         false
       end
     end
+    if (wait = Capybara.server_boot_wait)
+      puts "waiting"
+      sleep wait
+      puts "proceed"
+    end
     self
   rescue Timeout::Error
     Capybara.log "Rack application timed out during boot"
@@ -83,7 +94,7 @@ class Capybara::Server
 private
 
   def find_available_port
-    @port = 9887
+    @port = Capybara.server_start_port || 9887
     @port += 1 while is_port_open?(@port) and not is_running_on_port?(@port)
   end
 

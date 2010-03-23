@@ -17,6 +17,8 @@ module Capybara
   class << self
     attr_accessor :debug, :asset_root, :app_host, :run_server, :default_host
     attr_accessor :default_selector, :default_wait_time, :ignore_hidden_elements
+    attr_accessor :server_start_port, :selenium_browser, :selenium_remote, :selenium_driver_host
+    attr_accessor :server_boot_wait, :remote_host
 
     def default_selector
       @default_selector ||= :xpath
