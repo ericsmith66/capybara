@@ -47,7 +47,7 @@ class Capybara::Driver::Selenium < Capybara::Driver::Base
       options = node.find_elements(:xpath, "//option").map { |o| "'#{o.text}'" }.join(', ')
       raise Capybara::OptionNotFound, "No such option '#{option}' in this select box. Available options: #{options}"
     end
-    end
+
 
     def unselect(option)
       if node['multiple'] != 'multiple'
@@ -150,6 +150,18 @@ class Capybara::Driver::Selenium < Capybara::Driver::Base
     browser.find_elements(:xpath, selector).map { |node| Node.new(self, node) }
   end
 
+  def find_exact(selector)
+     puts "selector -------->#{selector}"
+      
+     nodes = browser.find_elements(:xpath, selector).map do |node| 
+       Node.new(self, node) 
+     end
+     return nodes.first
+     
+   rescue
+     return [] 
+    
+   end
   def wait?; true; end
 
   def evaluate_script(script)
@@ -161,7 +173,8 @@ class Capybara::Driver::Selenium < Capybara::Driver::Base
   end
 
   def cleanup!
-    browser.manage.delete_all_cookies
+    puts "cleaning up tests"
+    #browser.manage.delete_all_cookies
   end
 
 private

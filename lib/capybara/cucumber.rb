@@ -9,6 +9,7 @@ end
 
 Before('@javascript') do
   Capybara.current_driver = Capybara.javascript_driver
+
 end
 
 Before('@selenium') do

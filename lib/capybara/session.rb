@@ -49,9 +49,9 @@ module Capybara
       locate(:xpath, XPath.link(locator), msg).click
     end
 
-    def click_button(locator)
+    def click_button(locator, options={})
       msg = "no button with value or id or text '#{locator}' found"
-      locate(:xpath, XPath.button(locator), msg).click
+      locate(:xpath, XPath.button(locator), msg,:xpath_helper => options[:xpath_helper]).click
     end
 
     def drag(source_locator, target_locator)
@@ -62,7 +62,7 @@ module Capybara
 
     def fill_in(locator, options={})
       msg = "cannot fill in, no text field, text area or password field with id, name, or label '#{locator}' found"
-      locate(:xpath, XPath.fillable_field(locator), msg).set(options[:with])
+      locate(:xpath, XPath.fillable_field(locator), msg, :xpath_helper => options[:xpath_helper] ).set(options[:with])
     end
 
     def choose(locator)
@@ -217,10 +217,24 @@ module Capybara
     end
 
     #return node identified by locator or raise ElementNotFound(using desc)
-    def locate(kind_or_locator, locator=nil, fail_msg = nil)
-      node = wait_conditionally_until { find(kind_or_locator, locator) }
+    def locate(kind_or_locator, locator=nil, fail_msg = nil, options={})
+      
+      # Capybara.current_driver != 'selenium'
+      node = nil
+      if  options[:xpath_helper] && Capybara.current_driver.to_s == 'selenium'
+         helper_node = wait_conditionally_until { driver.find_exact(options[:xpath_helper]) }  
+         if helper_node.class.to_s=="Capybara::Driver::Selenium::Node"
+            node = helper_node
+         else
+            puts "--------------------------------XPATH HELPER NOT FOUND --------------> |#{Capybara.current_driver}| xpath_helper  #{options[:xpath_helper]}" if ! node
+          end  
+      end
+      node = wait_conditionally_until { find(kind_or_locator, locator) } if ! node
+      
+    
     ensure
       raise Capybara::ElementNotFound, fail_msg || "Unable to locate '#{kind_or_locator}'" unless node
+      puts @last_path if @last_path
       return node
     end
 
@@ -239,9 +253,13 @@ module Capybara
     end
 
     def all_unfiltered(locator)
-      XPath.wrap(locator).scope(current_scope).paths.map do |path|
-        driver.find(path)
+      @lastpath = ""
+      nodes = XPath.wrap(locator).scope(current_scope).paths.map do |path|
+        n = driver.find(path)
+        @last_path = path if ! n.empty? 
+        n
       end.flatten
+      return nodes
     end
 
     def current_scope
