@@ -44,7 +44,7 @@ class Capybara::Driver::RackTest < Capybara::Driver::Base
       end
     end
 
-
+   def select(option)
       if node['multiple'] != 'multiple'
         node.xpath(".//option[@selected]").each { |node| node.remove_attribute("selected") }
       end

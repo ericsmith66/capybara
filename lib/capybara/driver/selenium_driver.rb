@@ -47,7 +47,7 @@ class Capybara::Driver::Selenium < Capybara::Driver::Base
       options = node.find_elements(:xpath, "//option").map { |o| "'#{o.text}'" }.join(', ')
       raise Capybara::OptionNotFound, "No such option '#{option}' in this select box. Available options: #{options}"
     end
-    end
+
 
     def unselect(option)
       if node['multiple'] != 'multiple'
