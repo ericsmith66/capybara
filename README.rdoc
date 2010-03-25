@@ -2,7 +2,7 @@
 
 * http://github.com/jnicklas/capybara
 
-== Description:
+== Descripti on:
 
 Capybara aims to simplify the process of integration testing Rack applications,
 such as Rails, Sinatra or Merb. It is inspired by and aims to replace Webrat as
